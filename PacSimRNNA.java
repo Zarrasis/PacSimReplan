@@ -9,6 +9,8 @@ import pacsim.PacSim;
 import pacsim.PacUtils;
 import pacsim.PacmanCell;
 
+/* RNNA by Matthew Taubler and Brooke Norton */
+
 
 public class PacSimRNNA implements PacAction
 {
@@ -17,8 +19,7 @@ public class PacSimRNNA implements PacAction
 
 	}
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args){
 
 	}
 
@@ -29,8 +30,7 @@ public class PacSimRNNA implements PacAction
 
 
    @Override
-   public PacFace action( Object state )
-   {
+   public PacFace action( Object state ){
 
    }
 }
