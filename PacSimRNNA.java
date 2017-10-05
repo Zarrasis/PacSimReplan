@@ -12,7 +12,25 @@ import pacsim.PacmanCell;
 
 public class PacSimRNNA implements PacAction
 {
-	public PacSimRNNA{
-		
+	public PacSimRNNA(String fname){
+
+
 	}
+
+	public static void main(String[] args)
+	{
+
+	}
+
+	@Override
+   public void init() {
+      
+   }
+
+
+   @Override
+   public PacFace action( Object state )
+   {
+
+   }
 }
