@@ -14,6 +14,7 @@ import pacsim.PacmanCell;
  * Simple Re-planning Search Agent
  * @author Dr. Demetrios Glinos
  */
+
 public class PacSimReplan implements PacAction {
    
    private List<Point> path;
@@ -25,7 +26,7 @@ public class PacSimReplan implements PacAction {
    }
    
    public static void main( String[] args ) {         
-      System.out.println("\nTSP using simple replanning agent by Dr. Demetrios Glinos:");
+      System.out.println("\nTSP using simple replanning agent by Matthew Taubler and Brooke Norton");
       System.out.println("\nMaze : " + args[ 0 ] + "\n" );
       new PacSimReplan( args[ 0 ] );
    }
@@ -50,7 +51,11 @@ public class PacSimReplan implements PacAction {
       // measure and generate a path to that target
       
       if( path.isEmpty() ) {
+
+
          Point tgt = PacUtils.nearestFood( pc.getLoc(), grid);
+
+
          path = BFSPath.getPath(grid, pc.getLoc(), tgt);
          
          System.out.println("Pac-Man currently at: [ " + pc.getLoc().x
@@ -59,8 +64,10 @@ public class PacSimReplan implements PacAction {
                + ", " + tgt.y + " ]");
       }
       
+
+
+
       // take the next step on the current path
-      
       Point next = path.remove( 0 );
       PacFace face = PacUtils.direction( pc.getLoc(), next );
       System.out.printf( "%5d : From [ %2d, %2d ] go %s%n", 
