@@ -14,9 +14,7 @@ import pacsim.PacmanCell;
  * Simple Re-planning Search Agent
  * @author Dr. Demetrios Glinos
  */
-
-
-public class PacSimRNNA implements PacAction {
+public class PacSimReplan implements PacAction {
    
    private List<Point> path;
    private int simTime;
