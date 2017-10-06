@@ -60,7 +60,7 @@ public class PacSimRNNA implements PacAction
 
     // Print Food Array
     if (!config){
-    	int foodGrid[][] = getFoodGrid(pc, grid);
+    	int foodGrid[][] = getFoodGrid(grid);
   		getFoodArray(grid);
 
     	int costTable[][] = getCostTable(pc, grid);
@@ -68,7 +68,7 @@ public class PacSimRNNA implements PacAction
     	printFoodArray(foodGrid);
 		config = true;
 	}
-     
+
     if(path.isEmpty()){
 
      	Point target = PacUtils.nearestFood(pc.getLoc(), grid); 
@@ -95,35 +95,35 @@ public class PacSimRNNA implements PacAction
    }
 
    public int[][] getCostTable(PacmanCell pc, PacCell[][] grid) {
-   		
-   		int[][] costTable = new int[foodArray.size()][foodArray.size()];
+
    		Point p = pc.getLoc();
-   		//int fsize = foodArray.size() - 1;
+   		// The first line is 100% correct with this add to the food array.
+   		// This is adding the pacman position to the food array for comparison.
+   		foodArray.add(0, p);
+   		int[][] costTable = new int[foodArray.size()][foodArray.size()];
    		for (int i = 0; i < costTable.length; i++){
    			for(int j = 0; j < costTable[0].length; j++){
-   				costTable[i][j] = BFSPath.getPath(grid, p, foodArray.get(j)).size();
+   					costTable[i][j] = BFSPath.getPath(grid, p, foodArray.get(j)).size();
    			}
    			p = foodArray.get(i);
-   			
    		}
    		return costTable;
    }
 
-   public void printCostTable(int[][] costTable)
-   	{
+   public void printCostTable(int[][] costTable){
+
    		System.out.println("\nCost Table:\n");
    		for (int i = 0; i < costTable.length; i++){
    			for(int j = 0; j < costTable[0].length; j++){
-	   				System.out.print(costTable[i][j] + "\t");
+	   				System.out.printf("%3d", costTable[i][j]);
 	   			}
 	   			System.out.println();
    			}	
    	}
 
     // its fine	
-  	public int[][] getFoodGrid(PacCell[][] grid, PacManCell pc) {
+  	public int[][] getFoodGrid(PacCell[][] grid) {
    		int[][] foodArray = new int[grid.length][grid[0].length];
-   		foodArray.add(pc.getLoc());
    		for (int i = 0; i < grid.length; i++){
    			for(int j = 0; j < grid[0].length; j++){
 	   			if (PacUtils.food(i, j, grid)){
@@ -152,7 +152,7 @@ public class PacSimRNNA implements PacAction
    		}
    	}
 
-   	// its NOT fine
+   	// its NOT fine..ish
    	public void getFoodArray(PacCell[][] grid){
 
    		for (int i = 0; i < grid.length; i++){
