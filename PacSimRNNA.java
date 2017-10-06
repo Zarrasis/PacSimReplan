@@ -9,6 +9,7 @@ import pacsim.PacFace;
 import pacsim.PacSim;
 import pacsim.PacUtils;
 import pacsim.PacmanCell;
+import pacsim.FoodCell;
 
 /*
 	University of Central Florida
@@ -21,6 +22,7 @@ import pacsim.PacmanCell;
 public class PacSimRNNA implements PacAction
 {
 	private List<Point> path;
+	private List<Point> foodArray = new ArrayList();
    	private int simTime;
    	private	int foodCount = 0;
    	private boolean config = false;
@@ -40,7 +42,7 @@ public class PacSimRNNA implements PacAction
 	}
 
 	@Override
-   public void init( Object state){
+   public void init(){
       	simTime = 0; 
    		path = new ArrayList();
    }
@@ -58,10 +60,12 @@ public class PacSimRNNA implements PacAction
 
     // Print Food Array
     if (!config){
-    	int foodArray[][] = getFoodArray(grid);
-    	int costTable[][] = getCostTable(pc, grid, foodArray);
+    	int foodGrid[][] = getFoodGrid(grid);
+  		getFoodArray(grid);
+
+    	int costTable[][] = getCostTable(pc, grid);
     	printCostTable(costTable);
-    	printFoodArray(foodArray);
+    	printFoodArray(foodGrid);
 		config = true;
 	}
      
@@ -72,7 +76,7 @@ public class PacSimRNNA implements PacAction
      	checkNeighbors(pc.getLoc(), distance, grid);
 
 
-     	System.out.println(distance);
+     	//System.out.println(distance);
 
      	path = BFSPath.getPath(grid, pc.getLoc(), target); 
 
@@ -90,16 +94,16 @@ public class PacSimRNNA implements PacAction
    		return (int)(abs(pacMan.getX() - target.getX()) + abs(pacMan.getY() - target.getY()));
    }
 
-   public int[][] getCostTable( PacmanCell pc, PacCell[][] grid, int[][] foodArray) {
-   		int[][] costTable = new int[foodArray.length+1][foodArray[0].length+1];
-   		for (int i = 0; i < grid.length; i++){
-   			for(int j = 0; j < grid[0].length; j++){
-   				if(foodArray[i][j] == 1)
-   				{
-   					Point food = new Point(i,j);
-   					costTable[i][j] = BFSPath.getPath(grid, pc.getLoc(), food).size();
-   				}
+   public int[][] getCostTable(PacmanCell pc, PacCell[][] grid) {
+   		int[][] costTable = new int[foodArray.size()+1][foodArray.size()+1];
+   		Point p = pc.getLoc();
+   		//int fsize = foodArray.size() - 1;
+   		for (int i = 0; i < costTable.length; i++){
+   			for(int j = 0; j < costTable[0].length; j++){
+   				costTable[i][j] = BFSPath.getPath(grid, p, foodArray.get(j)).size();
    			}
+   			p = foodArray.get(i);
+   			
    		}
    		return costTable;
    }
@@ -109,13 +113,14 @@ public class PacSimRNNA implements PacAction
    		System.out.println("\nCost Table:\n");
    		for (int i = 0; i < costTable.length; i++){
    			for(int j = 0; j < costTable[0].length; j++){
-	   				System.out.print(costTable[i][j] + " ");
+	   				System.out.print(costTable[i][j] + "  ");
 	   			}
 	   			System.out.println();
    			}	
    	}
 
-   public int[][] getFoodArray(PacCell[][] grid) {
+    // its fine	
+  	public int[][] getFoodGrid(PacCell[][] grid) {
    		int[][] foodArray = new int[grid.length][grid[0].length];
    		for (int i = 0; i < grid.length; i++){
    			for(int j = 0; j < grid[0].length; j++){
@@ -130,17 +135,30 @@ public class PacSimRNNA implements PacAction
    		return foodArray;
    	}
 
-   	public void printFoodArray(int[][] foodArray)
-   	{
-   		foodCount = 0; 
+   	// its fine
+   	public void printFoodArray(int[][] foodGrid) {
+   		foodCount = -1; 
    		System.out.println("\nFood Array:\n");
-   		for (int i = 0; i < foodArray.length; i++){
-   			for(int j = 0; j < foodArray[0].length; j++){
-	   			if (foodArray[i][j] == 1){
+   		for (int i = 0; i < foodGrid.length; i++){
+   			for(int j = 0; j < foodGrid[0].length; j++){
+	   			if (foodGrid[i][j] == 1){
 	   				foodCount++;
-	   				System.out.println(foodCount-- + " : " + "(" + i + "," + j + ")");
+	   				System.out.println(foodCount + " : " + "(" + i + "," + j + ")");
 	   			}
    			}	
+   		}
+   	}
+
+   	// its NOT fine
+   	public void getFoodArray(PacCell[][] grid){
+
+   		for (int i = 0; i < grid.length; i++){
+   			for(int j = 0; j < grid[0].length; j++){
+   				if(PacUtils.food(i, j, grid)){
+   					Point p = new Point(i,j);
+   					foodArray.add(p);
+   				}
+   			}
    		}
    	}
 
@@ -161,14 +179,14 @@ public class PacSimRNNA implements PacAction
    			}
    		}*/
 
-   		if(PacUtils.food((int)cPL.getX() + distance, (int)cPL.getY(),grid))
-   			System.out.println("Point is food");
-   		if(PacUtils.food((int)cPL.getX() - distance, (int)cPL.getY(),grid))
-   			System.out.println("Point is food");
-   		if(PacUtils.food((int)cPL.getX(), (int)cPL.getY() + distance,grid))
-   			System.out.println("Point is food");
-   		if(PacUtils.food((int)cPL.getX(), (int)cPL.getY() - distance,grid))
-   			System.out.println("Point is food");
+   		// if(PacUtils.food((int)cPL.getX() + distance, (int)cPL.getY(),grid))
+   		// 	System.out.println("Point is food");
+   		// if(PacUtils.food((int)cPL.getX() - distance, (int)cPL.getY(),grid))
+   		// 	System.out.println("Point is food");
+   		// if(PacUtils.food((int)cPL.getX(), (int)cPL.getY() + distance,grid))
+   		// 	System.out.println("Point is food");
+   		// if(PacUtils.food((int)cPL.getX(), (int)cPL.getY() - distance,grid))
+   		// 	System.out.println("Point is food");
 
    		// if(PacUtils.food( cPL.getX() + distance, cPL.getY(), grid))
    		// 	neighbors.add(Point(int)(cPL.getX() + distance, cPL.getY()));
