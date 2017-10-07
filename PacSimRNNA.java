@@ -19,22 +19,31 @@ import pacsim.FoodCell;
 */
 
 public class PacSimRNNA implements PacAction {
- private List < Point > path;
- private List < Point > foodArray;
+ private List <Point> path;
+ private List <Point> solution;
+ private List <Path> paths;
+ private List <Point> foodArray;
  private int costTable[][];
  private int simTime;
  private int pathCount;
  private boolean rNNAcomplete;
- //private List<totalCosts> options = new ArrayList();
 
- class costPoint {
-  int cost;
-  Point point;
+ class Path {
+  private int totalCost;
+  private List <Food> path;
+  public Path() {
+      totalCost = 0;
+      path = new ArrayList();
+  }
  }
 
- class totalCosts {
-  private int tCost;
-  private List < costPoint > points = new ArrayList();
+ class Food {
+   private int cost;
+   private Point point;
+   public Food(int c, Point p) {
+      cost = c;
+      point = p;
+  }
  }
 
  public PacSimRNNA(String fname) {
@@ -53,6 +62,7 @@ public class PacSimRNNA implements PacAction {
   simTime = 0;
   pathCount = 0;
   path = new ArrayList();
+  paths = new ArrayList<Path>();
   foodArray = new ArrayList();
   rNNAcomplete = false;
  }
@@ -90,6 +100,11 @@ public class PacSimRNNA implements PacAction {
   }
 
   // Use lowest cost path solution for Pac-Man
+  if( path.isEmpty() ) {
+     Point tgt = solution.remove(0);
+     path = BFSPath.getPath(grid, pc.getLoc(), tgt);
+  }
+
   Point next = path.remove(0);
   PacFace face = PacUtils.direction(pc.getLoc(), next);
   pathCount++;
@@ -120,7 +135,7 @@ public class PacSimRNNA implements PacAction {
  }
 
  /*
-    Repetitive Nearest Neighbor Algorithm (RNNA)
+  Repetitive Nearest Neighbor Algorithm (RNNA)
 	Explores multiple branch possibilities whenever there is more than
 	one closest neighbor and returns the optimal, lowest cost path for Pac-Man.
 */
@@ -128,26 +143,24 @@ public class PacSimRNNA implements PacAction {
   Point p = pc.getLoc();
   for (int i = 0, k = 1; i < costTable.length; i++) {
    System.out.println("Population at step " + k + " :");
+   // Create new path object
+   Path pcPath = new Path();
    for (int j = 0; j < foodArray.size(); j++) {
-    Point f = foodArray.get(j);
-    int cost = costTable[i][j];
-    System.out.println(j + " : " + "cost=" + cost + " : [(" + f.x + "," + f.y + "), " + cost + "]");
+    // Create new food object
+    Food f = new Food(costTable[0][j], foodArray.get(j));
+    pcPath.totalCost += f.cost;
+    pcPath.path.add(f);
+    // Add to all paths
+    printPaths();
    }
+   paths.add(pcPath);
    k++;
    System.out.println();
   }
 
   // Set lowest cost path
-  path = BFSPath.getPath(grid, pc.getLoc(), foodArray.get(0));
+  solution = foodArray;
  }
-
- /*public void pop(PacmanCell pc){
-   Point p = pc.getLoc();
-   for (int j = 0; j < foodArray.size(); j++){
-     totalCosts.points.point = new Point(foodArray.get(j));
-     totalCosts.points.cost = FSPath.getPath(grid, p, foodArray.get(j)).size();
-   }
- }*/
 
  public void printCostTable() {
   System.out.println("\nCost Table:\n");
@@ -167,5 +180,17 @@ public class PacSimRNNA implements PacAction {
    count++;
   }
   System.out.println();
+ }
+
+ public void printPaths() {
+  int count = 0;
+  for (Path p : paths) {
+    System.out.print(count + " : " + "cost=" + p.totalCost + " : ");
+    for (Food f : p.path) {
+      System.out.print("[(" + f.point.x + "," + f.point.y + "), " + f.cost + "]");
+    }
+    count++;
+   }
+   System.out.println();
  }
 }
