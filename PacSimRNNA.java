@@ -23,11 +23,19 @@ public class PacSimRNNA implements PacAction
 {
 	private List<Point> path;
 	private List<Point> foodArray = new ArrayList();
-   	private int simTime;
-   	private	int foodCount = 0;
-   	private boolean config = false;
+  private int simTime;
+  private boolean config = false;
+  private List<totalCosts> options = new ArrayList();
 
+  class costPoint{
+    int cost; 
+    Point point; 
+  }
 
+  class totalCosts{
+    private int tCost;
+    private List<costPoint> points = new ArrayList(); 
+  }
 
 	public PacSimRNNA( String fname ) {
      PacSim sim = new PacSim( fname );
@@ -62,26 +70,31 @@ public class PacSimRNNA implements PacAction
     if (!config){
     	int foodGrid[][] = getFoodGrid(grid);
   		getFoodArray(grid);
-
     	int costTable[][] = getCostTable(pc, grid);
     	printCostTable(costTable);
     	printFoodArray(foodGrid);
-		config = true;
-	}
+      rNNA(pc, costTable);
+		  config = true;
+	   }
 
+/*     for(Point p : foodArray)
+     {
+      int count = 0; 
+      System.out.println(count + (p.x) + " " + (p.y));
+      count++;
+     }*/
+
+
+    //Cost table created and we need to determine RNNA move.
     if(path.isEmpty()){
 
+
      	Point target = PacUtils.nearestFood(pc.getLoc(), grid); 
-     	int distance = getDistance(pc.getLoc(), target);
-     	checkNeighbors(pc.getLoc(), distance, grid);
-
-
-     	//System.out.println(distance);
-
+     	//int distance = getDistance(pc.getLoc(), target);
+     	//checkNeighbors(pc.getLoc(), distance, grid);
      	path = BFSPath.getPath(grid, pc.getLoc(), target); 
 
      }
-
 
     Point next = path.remove(0); 
    	PacFace face = PacUtils.direction(pc.getLoc(), next);
@@ -89,72 +102,66 @@ public class PacSimRNNA implements PacAction
 
    }
 
-   // Gets distance to compare
-   public int getDistance(java.awt.Point pacMan, java.awt.Point target) {
-   		return (int)(abs(pacMan.getX() - target.getX()) + abs(pacMan.getY() - target.getY()));
-   }
+   // // Gets distance to compare
+   // public int getDistance(java.awt.Point pacMan, java.awt.Point target) {
+   // 		return (int)(abs(pacMan.getX() - target.getX()) + abs(pacMan.getY() - target.getY()));
+   // }
 
    public int[][] getCostTable(PacmanCell pc, PacCell[][] grid) {
-
-   		Point p = pc.getLoc();
-   		// The first line is 100% correct with this add to the food array.
-   		// This is adding the pacman position to the food array for comparison.
-   		foodArray.add(0, p);
+   		// Add the initial pacman position to the food array for comparison.
+   		foodArray.add(0, pc.getLoc());
    		int[][] costTable = new int[foodArray.size()][foodArray.size()];
    		for (int i = 0; i < costTable.length; i++){
+        // Get BFS start position 
+        Point p = foodArray.get(i);
    			for(int j = 0; j < costTable[0].length; j++){
-   					costTable[i][j] = BFSPath.getPath(grid, p, foodArray.get(j)).size();
+          // Determine the cost to each food from this position 
+   				costTable[i][j] = BFSPath.getPath(grid, p, foodArray.get(j)).size();
    			}
-   			p = foodArray.get(i);
    		}
+      foodArray.remove(0);
    		return costTable;
    }
 
    public void printCostTable(int[][] costTable){
-
    		System.out.println("\nCost Table:\n");
    		for (int i = 0; i < costTable.length; i++){
    			for(int j = 0; j < costTable[0].length; j++){
-	   				System.out.printf("%3d", costTable[i][j]);
+	   				System.out.printf("%4d", costTable[i][j]);
 	   			}
-	   			System.out.println();
+	   			System.out.println(); 
    			}	
    	}
-
-    // its fine	
+	
   	public int[][] getFoodGrid(PacCell[][] grid) {
    		int[][] foodArray = new int[grid.length][grid[0].length];
    		for (int i = 0; i < grid.length; i++){
    			for(int j = 0; j < grid[0].length; j++){
 	   			if (PacUtils.food(i, j, grid)){
-	   				foodCount++;
 	   				foodArray[i][j] = 1;
 	   			}
 	   			else
 	   				foodArray[i][j] = 0;
-   			}	
+   			  }	
    		}
    		
    		return foodArray;
    	}
 
-   	// its fine
    	public void printFoodArray(int[][] foodGrid) {
-   		foodCount = -1; 
+      int lineCount = 0;
    		System.out.println("\nFood Array:\n");
    		for (int i = 0; i < foodGrid.length; i++){
    			for(int j = 0; j < foodGrid[0].length; j++){
 	   			if (foodGrid[i][j] == 1){
-	   				foodCount++;
-	   				System.out.println(foodCount + " : " + "(" + i + "," + j + ")");
+	   				System.out.println(lineCount + " : " + "(" + i + "," + j + ")");
+            lineCount++;
 	   			}
    			}	
    		}
    	}
 
-   	// its NOT fine..ish
    	public void getFoodArray(PacCell[][] grid){
-
    		for (int i = 0; i < grid.length; i++){
    			for(int j = 0; j < grid[0].length; j++){
    				if(PacUtils.food(i, j, grid)){
@@ -164,6 +171,32 @@ public class PacSimRNNA implements PacAction
    			}
    		}
    	}
+
+    public void rNNA(PacmanCell pc, int [][] costTable){
+      // get pc location
+      Point p = pc.getLoc();
+
+      //for (int i = 1 ; i < costTable.length; i++){
+         for (int j = 0; j < foodArray.size(); j++){
+          Point f = foodArray.get(j);
+          int cost = costTable[0][j];
+          System.out.println(j + " : " + "cost=" + cost + " : (" + f.getX() + "," + f.getY() + ")");
+        }
+      //}
+    }
+
+    public void pop(PacmanCell pc){
+     
+      Point p = pc.getLoc();
+      for (int j = 0; j < foodArray.size(); j++)
+      {
+        totalCosts.points.point = new Point(foodArray.get(j));
+        totalCosts.points.cost = FSPath.getPath(grid, p, foodArray.get(j)).size();
+      }
+
+
+
+    }
 
    public void checkNeighbors(java.awt.Point cPL, int distance, PacCell[][] grid){
 
@@ -181,28 +214,6 @@ public class PacSimRNNA implements PacAction
 	   			}
    			}
    		}*/
-
-   		// if(PacUtils.food((int)cPL.getX() + distance, (int)cPL.getY(),grid))
-   		// 	System.out.println("Point is food");
-   		// if(PacUtils.food((int)cPL.getX() - distance, (int)cPL.getY(),grid))
-   		// 	System.out.println("Point is food");
-   		// if(PacUtils.food((int)cPL.getX(), (int)cPL.getY() + distance,grid))
-   		// 	System.out.println("Point is food");
-   		// if(PacUtils.food((int)cPL.getX(), (int)cPL.getY() - distance,grid))
-   		// 	System.out.println("Point is food");
-
-   		// if(PacUtils.food( cPL.getX() + distance, cPL.getY(), grid))
-   		// 	neighbors.add(Point(int)(cPL.getX() + distance, cPL.getY()));
-   		 
-   		// if(PacUtils.food( cPL.getX() - distance, cPL.getY(), grid))
-   		// 	neighbors.add(Point(int)(cPL.getX() - distance, cPL.getY()));
-   		
-   		// if(PacUtils.food( cPL.getX(), cPL.getY() + distance, grid))
-   		// 	neighbors.add(Point(int)(cPL.getX(), cPL.getY() + distance));
-   		
-   		// if(PacUtils.food( cPL.getX(), cPL.getY() - distance, grid))
-   		// 	neighbors.add(Points(int)(cPL.getX(), cPL.getY() - distance));
-
    }
 
 }
