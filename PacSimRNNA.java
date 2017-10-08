@@ -179,15 +179,13 @@ public class PacSimRNNA implements PacAction {
        for (int k = step + 2; k < row.length; k++){
          if (row[k] == cost) {
            System.out.println("Branching for cost " + row[k]);
-           /*Plan p = new Plan();
+           Plan p = new Plan();
            p.totalCost = plan.totalCost + cost;
            List <Food> currentFood = plan.food;
-           System.out.println("target index in food array: " + k);
-           currentFood.add(new Food(cost, foodArray.get(k))); // k is not correct index
+           //currentFood.add(new Food(cost, foodArray.get(k)));
            p.food = currentFood;
            // Add to possible plans
-           plans.add(p);
-           */
+           //plans.add(p);
          }
        }
      }
