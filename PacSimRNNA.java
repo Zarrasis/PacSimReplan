@@ -169,7 +169,7 @@ public class PacSimRNNA implements PacAction {
       Arrays.sort(row);
       int cost = row[step + 1];
 
-      // Get index of food point from cost table
+      // Add food to current plan
       plan.totalCost += cost;
       //plan.food.add(new Food(cost, foodArray.get(k)))
 
