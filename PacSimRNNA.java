@@ -165,27 +165,33 @@ public class PacSimRNNA implements PacAction {
       Point current = plan.food.get(plan.food.size() - 1).point;
 
       // Lookup the cost from the cost table
-      int row [] = costTable[getIndex(current) + 1];
-      Arrays.sort(row);
-      int cost = row[step + 1];
-
-      // Add food to current plan
-      plan.totalCost += cost;
-      //plan.food.add(new Food(cost, foodArray.get(k)))
-
-      // Check if there is any equidistant food
-      System.out.println("findex:" + getIndex(current));
+      int cost = getCost(step, current);
       System.out.println("cost:" + cost);
-       for (int j = step + 2; j < row.length; j++){
+
+      int row [] = costTable[getIndex(current) + 1];
+      boolean added = false;
+      for (int j = 0; j < row.length; j++) {
+         // Check if there is any equidistant food
          if (row[j] == cost) {
-           System.out.println("Branching for cost " + row[j]);
-           Plan p = new Plan();
-           p.totalCost = plan.totalCost + cost;
-           List <Food> currentFood = plan.food;
-           //currentFood.add(new Food(cost, foodArray.get(k)));
-           p.food = currentFood;
-           // Add to possible plans
-           //plans.add(p);
+           if (!added){
+             // Add food to current plan
+             plan.totalCost += cost;
+             System.out.println("Adding Food to current plan: " + foodArray.get(j-1) + "\n");
+             plan.food.add(new Food(cost, foodArray.get(j-1)));
+             added = true;
+           } else {
+             // Create new plan branch
+             System.out.println("Branch for cost " + row[j]);
+             Plan p = new Plan();
+             p.totalCost = plan.totalCost + cost;
+             List <Food> currentFood = plan.food;
+             System.out.println("Adding Food to branch: " + foodArray.get(j-1));
+             currentFood.add(new Food(cost, foodArray.get(j-1)));
+             p.food = currentFood;
+             // Add to possible plans
+             plans.add(p);
+             System.out.println("Added new plan to plans\n" );
+           }
          }
        }
      }
@@ -209,6 +215,17 @@ public void populateFirst(PacmanCell pc, PacCell[][] grid){
    }
    Collections.sort(plans,new PlanSort());
    printPlans();
+}
+
+public int getCost(int step, Point current) {
+  int row [] = costTable[getIndex(current) + 1];
+  int min = row[step + 1];
+  for (int i = step + 1; i < row.length; i++){
+    if (row[i] < min && row[i] != 0) {
+      min = row[i];
+    }
+  }
+  return min;
 }
 
 public int getIndex(Point point) {
