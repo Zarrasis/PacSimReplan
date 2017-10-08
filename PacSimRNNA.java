@@ -34,7 +34,7 @@ public class PacSimRNNA implements PacAction {
 
  class Plan {
   private int totalCost;
-  private List <Food> food;
+  private ArrayList <Food> food;
   public Plan() {
       totalCost = 0;
       food = new ArrayList<Food>();
@@ -159,6 +159,7 @@ public class PacSimRNNA implements PacAction {
  public void rNNA(PacmanCell pc, PacCell[][] grid) {
    for (int step = 1; step < foodArray.size(); step++) {
     System.out.println("\nPopulation at step " + (step + 1) + " :");
+    ArrayList<Plan> branches = new ArrayList<Plan>();
 
     for (int i = 0; i < plans.size(); i++) {
       Plan plan = plans.get(i);
@@ -166,9 +167,7 @@ public class PacSimRNNA implements PacAction {
 
       // Lookup the cost from the cost table
       int cost = getCost(step, current);
-      System.out.println("cost:" + cost);
-
-      // Store copy of totalCost for curent plan
+      // Store copy of total cost for curent plan
       int totalCost = plan.totalCost;
       // Store copy of current food for this plan
       ArrayList<Food> currentFood = new ArrayList<Food>();
@@ -179,35 +178,36 @@ public class PacSimRNNA implements PacAction {
       int row [] = costTable[getIndex(current) + 1];
       boolean added = false;
 
-      for (int j = 0; j < row.length; j++) {
-         // Check if there is any equidistant food
-         if (row[j] == cost) {
+      for (int j = step; j < row.length; j++) {
+        Point food = foodArray.get(j-1);
+         if (row[j] == cost && !isEaten(plan.food, food)) {
            if (!added) {
              // Add food to current plan
              plan.totalCost += cost;
-             //System.out.println("Adding Food " + foodArray.get(j-1) + " to current plan: " + i + "\n");
-             plan.food.add(new Food(cost, foodArray.get(j-1)));
+             plan.food.add(new Food(cost, food));
              added = true;
            } else {
              // Create new plan branch
-             //System.out.println("Branch for cost " + row[j]);
              Plan p = new Plan();
              p.totalCost = totalCost + cost;
              for (Food f : currentFood){
                p.food.add(new Food(f.cost, f.point));
              }
-             //System.out.println("Adding Food to branch: " + foodArray.get(j-1));
-             p.food.add(new Food(cost, foodArray.get(j-1)));
-             // Add to possible plans
-             plans.add(p);
-             //System.out.println("Added new plan to plans\n");
+             p.food.add(new Food(cost, food));
+             branches.add(p);
            }
          }
        }
      }
+     // Add branches to plans
+     for (Plan b : branches){
+       plans.add(b);
+     }
+     // Clear branches
+     branches = new ArrayList<Plan>();
 
-    Collections.sort(plans, new PlanSort());
-    printPlans();
+     Collections.sort(plans, new PlanSort());
+     printPlans();
   }
   // Set lowest cost plan
   solution = plans.get(0);
@@ -227,11 +227,21 @@ public void populateFirst(PacmanCell pc, PacCell[][] grid){
    printPlans();
 }
 
+public boolean isEaten(ArrayList<Food> food, Point p) {
+  for (Food f : food) {
+    if (f.point.x == p.x && f.point.y == p.y){
+      return true;
+    }
+  }
+  return false;
+}
+
 public int getCost(int step, Point current) {
   int row [] = costTable[getIndex(current) + 1];
-  int min = row[step + 1];
-  for (int i = step + 1; i < row.length; i++){
-    if (row[i] < min && row[i] != 0) {
+  // Set the min to the maximum cost of the grid
+  int min = (costTable.length - 1) + (costTable.length - 1);
+  for (int i = step; i < row.length; i++) {
+    if (row[i] != 0 && row[i] < min) {
       min = row[i];
     }
   }
