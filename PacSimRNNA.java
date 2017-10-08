@@ -116,8 +116,8 @@ public class PacSimRNNA implements PacAction {
   // If current path is completed (or just starting out),
   // select a the nearest food using the lowest cost plan
   if(path.isEmpty()) {
-     Food tgt = solution.food.remove(0);
-     path = BFSPath.getPath(grid, pc.getLoc(), tgt.point);
+     Point tgt = solution.food.remove(0).point;
+     path = BFSPath.getPath(grid, pc.getLoc(), tgt);
   }
 
   Point next = path.remove(0);
@@ -158,8 +158,8 @@ public class PacSimRNNA implements PacAction {
    // Populate plans with possibilites at Pac-Man's start
    System.out.println("Population at step 1 :");
    for (int i = 0; i < foodArray.size(); i++) {
-     Plan p = new Plan();
      Food f = new Food(costTable[0][i+1], foodArray.get(i));
+     Plan p = new Plan();
      p.totalCost = f.cost;
      p.food.add(f);
      // Add to possible plans
@@ -169,26 +169,35 @@ public class PacSimRNNA implements PacAction {
    printPlans();
 
    for (int j = 1; j < foodArray.size(); j++){
-    System.out.println("Population at step " + (j + 1) + " :");
-     for (Plan plan : plans){
-       int length = plan.food.size();
-       Point currentPos = plan.food.get(length - 1).point;
-       Point target = PacUtils.nearestFood(currentPos, grid);
-       // Lookup the cost from the cost Table
-       int row = getIndex(currentPos);
-       int col = getIndex(target);
-       int cost = costTable[row][col];
-       // Add to current plan
-       plan.totalCost += cost;
-       plan.food.add(new Food(cost, target));
-      // while ()
+    System.out.println("\nPopulation at step " + (j + 1) + " :");
+    for (int l = 0; l < plans.size(); l++){
+      Plan plan = plans.get(l);
+      int length = plan.food.size();
+      Point current = plan.food.get(length - 1).point;
+      Point target = PacUtils.nearestFood(current, grid);
+      int cost = getCost(current, target);
+
+       // Check if there is any equidistant food
+       for (int k = 0; k < costTable[getIndex(current)+1].length; k++){
+         if (costTable[0][k] == cost) {
+           plan.totalCost += cost;
+           plan.food.add(new Food(cost, foodArray.get(k)));
+           // Add to possible plans
+           plans.add(plan);
+         }
+       }
      }
     Collections.sort(plans, new PlanSort());
     printPlans();
   }
-
   // Set lowest cost plan
   solution = plans.get(0);
+ }
+
+
+ public void rNNA(PacmanCell pc, PacCell[][] grid) {
+
+
  }
 
 public int getIndex(Point point) {
@@ -198,6 +207,13 @@ public int getIndex(Point point) {
      }
    }
    return -1;
+}
+
+public int getCost(Point current, Point target){
+  // Lookup the cost from the cost Table
+  int row = getIndex(current);
+  int col = getIndex(target);
+  return costTable[row+1][col+1];
 }
 
  public void printCostTable() {
@@ -213,7 +229,7 @@ public int getIndex(Point point) {
  public void printFoodArray() {
   int count = 0;
   System.out.println("\nFood Array:\n");
-  for (Point p: foodArray) {
+  for (Point p : foodArray) {
    System.out.println(count + " : (" + p.x + ", " + p.y + ")");
    count++;
   }
