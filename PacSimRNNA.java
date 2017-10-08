@@ -168,29 +168,39 @@ public class PacSimRNNA implements PacAction {
       int cost = getCost(step, current);
       System.out.println("cost:" + cost);
 
+      // Store copy of totalCost for curent plan
+      int totalCost = plan.totalCost;
+      // Store copy of current food for this plan
+      ArrayList<Food> currentFood = new ArrayList<Food>();
+      for (Food f : plan.food){
+        currentFood.add(new Food(f.cost, f.point));
+      }
+
       int row [] = costTable[getIndex(current) + 1];
       boolean added = false;
+
       for (int j = 0; j < row.length; j++) {
          // Check if there is any equidistant food
          if (row[j] == cost) {
-           if (!added){
+           if (!added) {
              // Add food to current plan
              plan.totalCost += cost;
-             System.out.println("Adding Food to current plan: " + foodArray.get(j-1) + "\n");
+             //System.out.println("Adding Food " + foodArray.get(j-1) + " to current plan: " + i + "\n");
              plan.food.add(new Food(cost, foodArray.get(j-1)));
              added = true;
            } else {
              // Create new plan branch
-             System.out.println("Branch for cost " + row[j]);
+             //System.out.println("Branch for cost " + row[j]);
              Plan p = new Plan();
-             p.totalCost = plan.totalCost + cost;
-             List <Food> currentFood = plan.food;
-             System.out.println("Adding Food to branch: " + foodArray.get(j-1));
-             currentFood.add(new Food(cost, foodArray.get(j-1)));
-             p.food = currentFood;
+             p.totalCost = totalCost + cost;
+             for (Food f : currentFood){
+               p.food.add(new Food(f.cost, f.point));
+             }
+             //System.out.println("Adding Food to branch: " + foodArray.get(j-1));
+             p.food.add(new Food(cost, foodArray.get(j-1)));
              // Add to possible plans
              plans.add(p);
-             System.out.println("Added new plan to plans\n" );
+             //System.out.println("Added new plan to plans\n");
            }
          }
        }
