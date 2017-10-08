@@ -1,8 +1,8 @@
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections; 
-import java.util.Comparator; 
+import java.util.Collections;
+import java.util.Comparator;
 import static java.lang.Math.*;
 import pacsim.BFSPath;
 import pacsim.PacAction;
@@ -49,14 +49,14 @@ public class PacSimRNNA implements PacAction {
   }
  }
 
- class PlanSort implements Comparator<Plan> {  
+ class PlanSort implements Comparator<Plan> {
     @Override
     public int compare(Plan p1, Plan p2) {
       if(p1.totalCost > p2.totalCost)
         return 1;
       if(p2.totalCost > p1.totalCost)
         return -1;
-      return 0; 
+      return 0;
     }
   }
 
@@ -155,28 +155,50 @@ public class PacSimRNNA implements PacAction {
 	one closest neighbor and returns the optimal, lowest cost plan for Pac-Man.
 */
  public void rNNA(PacmanCell pc, PacCell[][] grid) {
-  // Populate plans with possibilites at Pac-Man's start 
-  System.out.println("Population at step " + "1" + " :");
-  for (int i = 0; i < foodArray.size(); i++) { 
-    Plan p = new Plan();
-    Food f = new Food(costTable[0][i+1], foodArray.get(i));
-    p.totalCost += f.cost;
-    p.food.add(f);
-    // Add to possible plans
-    plans.add(p);  
+   // Populate plans with possibilites at Pac-Man's start
+   System.out.println("Population at step 1 :");
+   for (int i = 0; i < foodArray.size(); i++) {
+     Plan p = new Plan();
+     Food f = new Food(costTable[0][i+1], foodArray.get(i));
+     p.totalCost = f.cost;
+     p.food.add(f);
+     // Add to possible plans
+     plans.add(p);
+   }
+   Collections.sort(plans,new PlanSort());
+   printPlans();
+
+   for (int j = 1; j < foodArray.size(); j++){
+    System.out.println("Population at step " + (j + 1) + " :");
+     for (Plan plan : plans){
+       int length = plan.food.size();
+       Point currentPos = plan.food.get(length - 1).point;
+       Point target = PacUtils.nearestFood(currentPos, grid);
+       // Lookup the cost from the cost Table
+       int row = getIndex(currentPos);
+       int col = getIndex(target);
+       int cost = costTable[row][col];
+       // Add to current plan
+       plan.totalCost += cost;
+       plan.food.add(new Food(cost, target));
+      // while ()
+     }
+    Collections.sort(plans, new PlanSort());
+    printPlans();
   }
-  Collections.sort(plans,new PlanSort());
-  printPlans(); 
-
-  for (int j = 0; j < plans.size(); j++){
-
-
-  }
-
 
   // Set lowest cost plan
   solution = plans.get(0);
  }
+
+public int getIndex(Point point) {
+   for (int i = 0; i < foodArray.size(); i++){
+     if (foodArray.get(i).x == point.x && foodArray.get(i).y == point.y) {
+       return i;
+     }
+   }
+   return -1;
+}
 
  public void printCostTable() {
   System.out.println("\nCost Table:\n");
@@ -204,10 +226,9 @@ public class PacSimRNNA implements PacAction {
     System.out.print(count + " : " + "cost=" + p.totalCost + " : ");
     for (Food f : p.food) {
       System.out.print("[(" + f.point.x + "," + f.point.y + "), " + f.cost + "]");
-      System.out.println();
     }
     count++;
+    System.out.println();
    }
  }
 }
-
