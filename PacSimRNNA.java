@@ -155,23 +155,13 @@ public class PacSimRNNA implements PacAction {
 	one closest neighbor and returns the optimal, lowest cost plan for Pac-Man.
 */
  public void rNNA(PacmanCell pc, PacCell[][] grid) {
-   // Populate plans with possibilites at Pac-Man's start
-   System.out.println("Population at step 1 :");
-   for (int i = 0; i < foodArray.size(); i++) {
-     Food f = new Food(costTable[0][i+1], foodArray.get(i));
-     Plan p = new Plan();
-     p.totalCost = f.cost;
-     p.food.add(f);
-     // Add to possible plans
-     plans.add(p);
-   }
-   Collections.sort(plans,new PlanSort());
-   printPlans();
 
-   for (int j = 1; j < foodArray.size(); j++){
-    System.out.println("\nPopulation at step " + (j + 1) + " :");
-    for (int l = 0; l < plans.size(); l++){
-      Plan plan = plans.get(l);
+   popFirst(pc, grid);
+   
+   for (int i = 1; i < foodArray.size(); i++){
+    System.out.println("\nPopulation at step " + (i + 1) + " :");
+    for (int j = 0; j < plans.size(); j++){
+      Plan plan = plans.get(j);
       int length = plan.food.size();
       Point current = plan.food.get(length - 1).point;
       Point target = PacUtils.nearestFood(current, grid);
@@ -194,11 +184,26 @@ public class PacSimRNNA implements PacAction {
   solution = plans.get(0);
  }
 
+public void rNNA(PacmanCell pc, PacCell[][] grid) {
+  
+    
 
- public void rNNA(PacmanCell pc, PacCell[][] grid) {
+}
 
+public void popFirst(PacmanCell pc, PacCell[][] grid){
+  System.out.println("Population at step 1 :");
+   for (int i = 0; i < foodArray.size(); i++) {
+     Food f = new Food(costTable[0][i+1], foodArray.get(i));
+     Plan p = new Plan();
+     p.totalCost = f.cost;
+     p.food.add(f);
+     // Add to possible plans
+     plans.add(p);
+   }
+   Collections.sort(plans,new PlanSort());
+   printPlans();
 
- }
+}
 
 public int getIndex(Point point) {
    for (int i = 0; i < foodArray.size(); i++){
