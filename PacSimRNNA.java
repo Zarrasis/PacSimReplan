@@ -160,8 +160,8 @@ public class PacSimRNNA implements PacAction {
    for (int step = 1; step < foodArray.size(); step++) {
     System.out.println("\nPopulation at step " + (step + 1) + " :");
 
-    for (int j = 0; j < plans.size(); j++) {
-      Plan plan = plans.get(j);
+    for (int i = 0; i < plans.size(); i++) {
+      Plan plan = plans.get(i);
       Point current = plan.food.get(plan.food.size() - 1).point;
 
       // Lookup the cost from the cost table
@@ -176,9 +176,9 @@ public class PacSimRNNA implements PacAction {
       // Check if there is any equidistant food
       System.out.println("findex:" + getIndex(current));
       System.out.println("cost:" + cost);
-       for (int k = step + 2; k < row.length; k++){
-         if (row[k] == cost) {
-           System.out.println("Branching for cost " + row[k]);
+       for (int j = step + 2; j < row.length; j++){
+         if (row[j] == cost) {
+           System.out.println("Branching for cost " + row[j]);
            Plan p = new Plan();
            p.totalCost = plan.totalCost + cost;
            List <Food> currentFood = plan.food;
