@@ -156,7 +156,7 @@ public class PacSimRNNA implements PacAction {
 	Explores multiple branch possibilities whenever there is more than
 	one closest neighbor and returns the optimal, lowest cost plan for Pac-Man.
 */
- public void rNNA(PacmanCell pc, PacCell[][] grid) {
+ public void rNNA(PacCell[][] grid) {
    for (int step = 1; step < foodArray.size(); step++) {
     System.out.println("\nPopulation at step " + (step + 1) + " :");
     ArrayList<Plan> branches = new ArrayList<Plan>();
@@ -212,6 +212,13 @@ public class PacSimRNNA implements PacAction {
   // Set lowest cost plan
   solution = plans.get(0);
  }
+
+public void rNNA2 (cost, row, food) {
+  if (size == 0){
+    return
+  }
+  if ()
+}
 
 public void populateFirst(PacmanCell pc, PacCell[][] grid){
   System.out.println("Population at step 1 :");
@@ -280,7 +287,7 @@ public int getIndex(Point point) {
  public void printPlans() {
   int count = 0;
   for (Plan p : plans) {
-    System.out.print(count + " : " + "cost=" + p.totalCost + " : ");
+    System.out.print("    " + count + " : " + "cost=" + p.totalCost + " : ");
     for (Food f : p.food) {
       System.out.print("[(" + f.point.x + "," + f.point.y + "), " + f.cost + "]");
     }
