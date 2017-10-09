@@ -102,8 +102,11 @@ public class PacSimRNNA implements PacAction {
    int startTime = (int)System.currentTimeMillis();
 
    // Compute RNNA for this game
-   populateFirst(pc, grid);
-   rNNA(pc, grid);
+   populateFirst();
+   rNNA();
+
+   // Set solutions
+   solution = plans.get(0);
 
    // End timer and set total time
    int endTime = (int)System.currentTimeMillis();
@@ -156,7 +159,7 @@ public class PacSimRNNA implements PacAction {
 	Explores multiple branch possibilities whenever there is more than
 	one closest neighbor and returns the optimal, lowest cost plan for Pac-Man.
 */
- public void rNNA(PacCell[][] grid) {
+ public void rNNA() {
    for (int step = 1; step < foodArray.size(); step++) {
     System.out.println("\nPopulation at step " + (step + 1) + " :");
     ArrayList<Plan> branches = new ArrayList<Plan>();
@@ -180,7 +183,7 @@ public class PacSimRNNA implements PacAction {
 
       for (int j = step; j < row.length; j++) {
         Point food = foodArray.get(j-1);
-         if (row[j] == cost && !isEaten(plan.food, food)) {
+         if (row[j] == cost) {
            if (!added) {
              // Add food to current plan
              plan.totalCost += cost;
@@ -210,17 +213,38 @@ public class PacSimRNNA implements PacAction {
      printPlans();
   }
   // Set lowest cost plan
-  solution = plans.get(0);
+  solution = plans.get(plans.size()-1);
  }
 
-public void rNNA2 (cost, row, food) {
-  if (size == 0){
-    return
+public void rNNA2 (int size, Plan plan, int [] row, int cost, int index) {
+  if (plan.food.size() == size) {
+    return;
   }
-  if ()
+
+  for (int i = index; i < row.length; i++){
+    if (row[i] == cost) {
+      if (!isEaten(plan.food, foodArray.get(i-1))){
+        plan.totalCost += cost;
+        plan.food.add(new Food(cost, foodArray.get(i-1)));
+      rNNA2(size, plan, row, cost, i);
+      } else {
+        // Branch
+        Plan p = new Plan();
+        p.totalCost += cost;
+        for (Food f : plan.food){
+          p.food.add(new Food(f.cost, f.point));
+        }
+        p.food.add(new Food(cost, foodArray.get(i-1)));
+        plans.add(p);
+        rNNA2(size, plan, row, cost, i);
+
+      }
+    }
+  }
+  rNNA2(size, plan, row, cost++, index);
 }
 
-public void populateFirst(PacmanCell pc, PacCell[][] grid){
+public void populateFirst(){
   System.out.println("Population at step 1 :");
    for (int i = 0; i < foodArray.size(); i++) {
      Food f = new Food(costTable[0][i+1], foodArray.get(i));
